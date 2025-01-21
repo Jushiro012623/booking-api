@@ -1,2 +1,8 @@
 require('dotenv').config();
-module.exports = process.env.JWT_SECRET_KEY
+const secret_key = process.env.JWT_SECRET_KEY
+const expiry = process.env.JWT_EXPIRY
+
+module.exports = {
+  secret_key,
+  expiry
+}
