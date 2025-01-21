@@ -30,7 +30,6 @@ const login = async (req : Request, res: Response, next : NextFunction) => {
             res.status(401)
             return next(new Error("Invalid Credentials"));
         }
-
         const roles = user.Roles.map((role : any) => role.name)
         const requiredRole = roleMapping[type as keyof typeof roleMapping];
         if (!roles.includes(requiredRole)) {
