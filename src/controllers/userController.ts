@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from "express";
+import {hash, compare} from '../utils/bcryptFunction'
 
 require('dotenv').config()
 const jwt_config = require('../config/jwt.config')
 const db = require('../models')
 const jwt = require('jsonwebtoken')
-const {hash, compare} = require('../utils/bcryptFunction')
 
 const roleMapping = {
     1 : 'admin',
     2 : 'user',
     3 : 'terminal',
 };
-const login = async (req : Request, res: Response, next : NextFunction) => {
+export const login = async (req : Request, res: Response, next : NextFunction) => {
     try {
         const { email, password, type  } = req.body;
         const user = await db.User.findOne({
@@ -52,7 +52,7 @@ const login = async (req : Request, res: Response, next : NextFunction) => {
         next(error);
     }
 }
-const register = async (req: any, res: Response, next : NextFunction) => {
+export const register = async (req: any, res: Response, next : NextFunction) => {
     const transaction = await db.sequelize.transaction();
     try {
         const { email, password, username } = req.body;
@@ -89,7 +89,11 @@ const register = async (req: any, res: Response, next : NextFunction) => {
         res.status(500).json({ message: 'Server Error', success: false, error });
     }
 }
-const logout = async (req : Request, res : Response) => {
+export const logout = async (req : Request, res : Response) => {
     res.status(200).json({success: true, message: 'Logged out successfully'})
 }
-module.exports = { login, register, logout }
+export default {
+    login,
+    register,
+    logout,
+}

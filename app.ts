@@ -1,12 +1,14 @@
-const express = require('express')
+import routes from './src/routes'
+import express  from 'express'
+import middleware  from './src/middlewares'
+
 require('dotenv').config()
+
 const app = express()
 const port = process.env.PORT
 const database = require('./src/database')
-const routes = require('./src/routes')
-const middleware = require('./src/middlewares')
 
-module.exports = () => {
+export default () => {
     database()
     middleware(app)
     routes(app)
@@ -14,4 +16,3 @@ module.exports = () => {
         console.log(`Server is running at http://localhost:${port}`)
     })
 }
-

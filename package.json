@@ -4,7 +4,7 @@
   "main": "app.ts",
   "scripts": {
     "build": "npx tsc",
-    "start": "node public/index.js",
+    "start": "ts-node public/index.ts",
     "dev": "nodemon public/index.ts",
     "db:init": "npx sequelize-cli db:create",
     "migrate:up": "npx sequelize-cli db:migrate",

@@ -10,7 +10,7 @@ interface CustomRequest extends Request {
         permissions: string[];
     };
 }
-const isAuthenticated = (req : CustomRequest, res : Response, next : NextFunction) => {
+export const isAuthenticated = (req : CustomRequest, res : Response, next : NextFunction) => {
     const token = getToken(req)
     if (!token){
         res.status(403)
@@ -25,7 +25,7 @@ const isAuthenticated = (req : CustomRequest, res : Response, next : NextFunctio
         return next(new Error("Invalid or expired token: Authentication failed."));
     }
 };
-const isGuest = (req : Request, res : Response, next : NextFunction) => {
+export const isGuest = (req : Request, res : Response, next : NextFunction) => {
     const token = getToken(req)
     if (token) {
         res.status(401);
@@ -34,8 +34,13 @@ const isGuest = (req : Request, res : Response, next : NextFunction) => {
     next();
 };
 
-const getToken = (req : Request) => {
+export const getToken = (req : Request) => {
     const authHeader = req.headers["authorization"];
     return authHeader && authHeader.split(" ")[1];
 }
-module.exports = {isAuthenticated, isGuest};
+export default {
+    isAuthenticated,
+    isGuest,
+    getToken,
+}
+// module.exports = {isAuthenticated, isGuest};
