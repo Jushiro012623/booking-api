@@ -10,15 +10,15 @@ module.exports = {
         },
         {
             name: 'semirara',
-            label: 'San Jose'
+            label: 'Semirara'
         },
         {
             name: 'caluya',
-            label: 'San Jose'
+            label: 'Caluya'
         },
         {
             name: 'libertad',
-            label: 'San Jose'
+            label: 'Libertad'
         }
     ])
   },

@@ -1,0 +1,11 @@
+export default {
+    BAD_REQUEST: 400,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    SERVER_ERROR: 500,
+    UNAUTHORIZED: 401,
+    CONFLICT: 409,
+    OK: 200,
+    CREATED: 201,
+    NO_CONTENT: 204
+}
