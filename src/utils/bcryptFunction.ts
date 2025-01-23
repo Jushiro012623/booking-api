@@ -1,6 +1,10 @@
 const bcrypt = require("bcrypt");
-export const hash = (hash : string) => bcrypt.hash(hash, 10);
-export const compare = (value : any, compareTo : any) => bcrypt.compare(value, compareTo) 
+
+
+export const hash = async (hash : string) => {
+    const salt = await bcrypt.genSalt(10) 
+    return bcrypt.hash(hash, salt)};
+export const compare = async (value : any, compareTo : any) => await bcrypt.compare(value, compareTo) 
 
 export default {
     hash,

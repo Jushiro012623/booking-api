@@ -1,2 +1,2 @@
 import app from '../app'
-app()
+new app().start()

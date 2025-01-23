@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import status from '../constants/status';
-// const {constants} = require("../../constants");
-
+import status from '../constants/statusCodes';
 const errorHandler = (err : Error, req : Request, res : Response, next : NextFunction) => {
     const statusCode = res.statusCode ? res.statusCode : 500
 

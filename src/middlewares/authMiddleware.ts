@@ -1,7 +1,7 @@
+import { log } from "console";
 import { NextFunction, Request, Response } from "express";
-
+import jwt_config from "../config/jwt.config"
 const jwt = require("jsonwebtoken");
-const jwt_config = require("../config/jwt.config");
 
 interface CustomRequest extends Request {
     user?: {
@@ -33,14 +33,11 @@ export const isGuest = (req : Request, res : Response, next : NextFunction) => {
     }
     next();
 };
-
-export const getToken = (req : Request) => {
+const getToken = (req : Request) => {
     const authHeader = req.headers["authorization"];
     return authHeader && authHeader.split(" ")[1];
 }
 export default {
     isAuthenticated,
     isGuest,
-    getToken,
 }
-// module.exports = {isAuthenticated, isGuest};

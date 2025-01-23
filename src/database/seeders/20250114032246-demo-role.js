@@ -14,8 +14,8 @@ module.exports = {
                 updatedAt: new Date(),
             },
             {
-                label: 'Termninal',
-                name: 'termninal',
+                label: 'Terminal',
+                name: 'terminal',
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
