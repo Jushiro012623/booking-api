@@ -5,6 +5,9 @@ import authService from "./userService";
 import jwt_config from "../../config/jwt.config";
 import verifyRequest from "../../helpers/verifyRequest";
 import BaseService from '../../service/baseService'
+import returnError from '../../utils/returnError';
+import statusCodes from "../../constants/statusCodes";
+
 
 const jwt = require('jsonwebtoken')
 const db = require('../../models')
@@ -16,22 +19,16 @@ export const login = async (req : Request, res: Response, next : NextFunction) =
     const { email, password, type  } = req.body;
 
     const user = await authService.findUser({email})
-    if(!user) {
-        res.status(404)
-        return next(new Error("User not found"));
-    }
+    if(!user) returnError(res, next, 'User not found', statusCodes.NOT_FOUND);
+
     const isPasswordMatch = await compare(password, user.password) 
-    if(!isPasswordMatch){
-        res.status(401)
-        return next(new Error("Invalid Credentials"));
-    }
+    if(!isPasswordMatch) returnError(res, next, 'Invalid Credentials', statusCodes.UNAUTHORIZED);
+
     const canUserLogin = authService.canUserLogin(user, type)
-    if (!canUserLogin) {
-        res.status(403)
-        return next(new Error(`Access denied. The user does not have the required role.`));
-    }
+    if (!canUserLogin) returnError(res, next, 'Access denied. The user does not have the required role.', statusCodes.FORBIDDEN);
+
     const token = jwt.sign({ id: user.id }, jwt_config.secret_key, { expiresIn: jwt_config.expiry })
-    res.status(200).json({
+    res.status(statusCodes.OK).json({
         success: true,
         access_token: token,
         user : {
@@ -46,20 +43,20 @@ export const register = async (req: any, res: Response, next : NextFunction) => 
     const transaction = await db.sequelize.transaction();
     try {
         const { email, password, username } = req.body;
+
         const isUserExist = await authService.findUser({ [db.Sequelize.Op.or]: [ { email }, { username }] })
-        if (isUserExist) {
-            res.status(409)
-            return next(new Error('User already exists'))
-        }
+        if (isUserExist) returnError(res, next, 'User already exists', statusCodes.CONFLICT);
+
         const hashedPassword = await hash(password);
         const user = await authService.createUser({ email, password: hashedPassword, username })
+
         await authService.createUserRole({ role_id: 2, user_id: user.id })
-        const hashed_id = await hash(user.id.toString())
+
         await transaction.commit();
-        res.status(200).json({
+        res.status(statusCodes.OK).json({
             success: true,
             user : {
-                id: hashed_id,
+                id: user.id,
                 email: user.email,
                 username: user.username,
             },
@@ -71,7 +68,7 @@ export const register = async (req: any, res: Response, next : NextFunction) => 
     }
 }
 export const logout = async (req : Request, res : Response) => {
-    res.status(200).json({success: true, message: 'Logged out successfully'})
+    res.status(statusCodes.OK).json({success: true, message: 'Logged out successfully'})
 }
 
 const getAll = user.getAll
@@ -85,5 +82,8 @@ export default {
     getOne,
     updateOne,
     deleteOne,
-    createOne
+    createOne,
+    login,
+    register,
+    logout
 }

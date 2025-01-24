@@ -1,6 +1,5 @@
 
 const db = require('../../models')
-
 const findUser = async (where : any) =>{ 
     return await db.User.findOne({
         where: where,

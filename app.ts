@@ -11,8 +11,6 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
 
-
-
 export default class App {
     private app: Application = express();
     public routes_middleware = () => {
@@ -26,10 +24,11 @@ export default class App {
         this.app.use('/api', limiter);
 
         
-        this.app.use(xss());
-        this.app.use(hpp());
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
+
+        this.app.use(xss());
+        this.app.use(hpp());
         
         this.app.use('/api/v1', userRoutes)
 

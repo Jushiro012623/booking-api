@@ -1,22 +1,24 @@
 import { Router } from 'express';
 import user, { login, logout,register } from './userController'
 import catchAsync from '../../utils/catchAsync';
-import {isGuest, isAuthenticated} from '../../middlewares/authMiddleware' 
+import {requireGuestUser, requireAuthUser} from '../../middlewares/authMiddleware' 
 import { registerValidation, loginValidation } from './userValidations';
-import restrictTo from "../../middlewares/roleMiddleware"
+import requiredRoles from "../../middlewares/roleMiddleware"
 
 const userRouter  = Router();
 
-userRouter.get("/users/", isAuthenticated,  catchAsync(user.getAll));
-userRouter.post("/users/", isAuthenticated, catchAsync(user.createOne));
-userRouter.get("/users/:id", isAuthenticated, catchAsync(user.getOne));
-userRouter.put("/users/:id", isAuthenticated, catchAsync(user.updateOne));
-userRouter.delete("/users/:id", isAuthenticated, catchAsync(user.deleteOne));
+const adminMiddleware = [requireAuthUser, requiredRoles(['admin'])]
+// Admin Routes for Module Users
+userRouter.get("/users/", adminMiddleware, user.getAll);
+userRouter.post("/users/", adminMiddleware, user.createOne);
+userRouter.get("/users/:id", adminMiddleware, user.getOne);
+userRouter.put("/users/:id", adminMiddleware, user.updateOne);
+userRouter.delete("/users/:id", adminMiddleware, user.deleteOne);
 
-
-userRouter.post("/login", isGuest,loginValidation, catchAsync(login));
-userRouter.post("/register",isGuest, registerValidation, register);
-userRouter.post("/logout",isAuthenticated, logout);
+// Authentication Routes
+userRouter.post("/login", requireGuestUser,loginValidation, catchAsync(login));
+userRouter.post("/register",requireGuestUser, registerValidation, register);
+userRouter.post("/logout",requireAuthUser, logout);
 
 
 
