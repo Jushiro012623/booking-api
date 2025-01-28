@@ -9,10 +9,10 @@ import HttpStatus from "../../constants/statusCodes";
 import userService from "./userService";
 import crypto from 'crypto'
 import moment from "moment";
-
+import nodemailer from "../../service/mailService";
 const jwt = require('jsonwebtoken')
 const db = require('../../models')
-const user = new BaseService(db.User, 'User')
+export const user = new BaseService(db.User, 'User')
 interface CustomRequest extends Request {
     user?: {
         id: number;
@@ -25,7 +25,7 @@ export const login = async (req : Request, res: Response, next : NextFunction) =
     verifyRequest(req, res)
     const { email, password, type  } = req.body;
 
-    const user = await authService.findUser({ email })  
+    const user = await authService.findUser({ email }, true)  
     if(!user) returnError(res, next, 'User not found', HttpStatus.NOT_FOUND);
 
     const isPasswordMatch = await compare(password, user.password) 
@@ -53,7 +53,8 @@ export const register = async (req: any, res: Response, next : NextFunction) => 
     try {
         const { email, password, username } = req.body;
 
-        const isUserExist = await authService.findUser({ [db.Sequelize.Op.or]: [ { email }, { username }] })
+        const userQuery = { [db.Sequelize.Op.or]: [ { email }, { username }] }
+        const isUserExist = await authService.findUser(userQuery)
         if (isUserExist) returnError(res, next, 'User already exists', HttpStatus.CONFLICT);
 
         const hashedPassword = await hash(password);
@@ -83,13 +84,17 @@ export const logout = async (req : Request, res : Response) => {
 }
 export const forgotPassword = async (req : Request, res : Response, next : NextFunction) => {
     const { email } = req.body
+
     const user : any = await userService.findUser({email})
     if (!user) returnError(res, next, 'User not found', HttpStatus.NOT_FOUND);
+
     const token = crypto.randomBytes(20).toString('hex');
     const expiration = moment().add(30, 'minutes').toISOString();
     await userService.saveResetPasswordToken({token, expiration, user_id: user.id})
-    const transporter = authService.transporter()
-    const mailOptions = authService.mailOptions(user.email, token)
+
+    const transporter = nodemailer.transporter()
+    const mailOptions = nodemailer.mailOptions(user.email, token)
+
     const info = await transporter.sendMail(mailOptions)
     console.log("Message sent: %s", info.messageId);
     res.status(HttpStatus.OK).json(
@@ -102,6 +107,7 @@ export const forgotPassword = async (req : Request, res : Response, next : NextF
 export const resetPasswordToken = async (req : Request, res : Response, next : NextFunction) => {
     verifyRequest(req, res)
     const { token } = req.params;
+
     const resetToken = await userService.isResetTokenValid(token);
     if (!resetToken) returnError(res, next, 'Invalid or expired token', HttpStatus.NOT_FOUND);
 
@@ -116,6 +122,7 @@ export const resetPasswordToken = async (req : Request, res : Response, next : N
 export const resetPassword = async (req : Request, res : Response, next : NextFunction) => {
     verifyRequest(req, res)
     const { token, password } = req.body;
+
     const resetToken = await userService.isResetTokenValid(token);
     if (!resetToken) returnError(res, next, 'Invalid or expired token', HttpStatus.NOT_FOUND);
 
@@ -133,12 +140,9 @@ export const resetPassword = async (req : Request, res : Response, next : NextFu
     });
 }
 export const updatePassword = async (req : CustomRequest, res : Response, next : NextFunction) => {
-
         verifyRequest(req, res);
         const { currentPassword, password } = req.body;
         const userId = req.user?.id;
-
-        if (!userId) returnError(res, next, 'User not authenticated', HttpStatus.UNAUTHORIZED);
 
         const user = await userService.findUser({ id: userId });
         if (!user) returnError(res, next, 'User not found', HttpStatus.NOT_FOUND);
@@ -154,19 +158,29 @@ export const updatePassword = async (req : CustomRequest, res : Response, next :
             message: 'Password updated successfully'
         });
 }
+export const getSelf = async (req: CustomRequest, res: Response,next : NextFunction) => {
+    const userId = req.user?.id;
+    const user = await userService.findUser({ id: userId });
+    if (!user) returnError(res, next, 'User not found', HttpStatus.NOT_FOUND);
+    const userObj = user.toJSON();
+    delete userObj.password
+    res.status(HttpStatus.OK).json({ user: userObj });
+}
 
-const getAll = user.getAll
-const getOne = user.getOne
-const updateOne = user.updateOne
-const deleteOne = user.deleteOne
-const createOne = user.createOne
+// const getAll = user.getAll
+// const getOne = user.getOne
+// const updateOne = user.updateOne
+// const deleteOne = user.deleteOne
+// const createOne = user.createOne
 
 export default {
-    getAll,
-    getOne,
-    updateOne,
-    deleteOne,
-    createOne,
+    getSelf,
+    user,
+    // getAll,
+    // getOne,
+    // updateOne,
+    // deleteOne,
+    // createOne,
     login,
     register,
     logout,

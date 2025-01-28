@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import user, { forgotPassword, login, logout,register, resetPassword, resetPasswordToken,updatePassword } from './userController'
+import { user, forgotPassword, getSelf, login, logout,register, resetPassword, resetPasswordToken,updatePassword } from './userController'
 import catchAsync from '../../utils/catchAsync';
 import {requireGuestUser, requireAuthUser} from '../../middlewares/authMiddleware' 
 import { registerValidation, loginValidation, emailValidation, resetPasswordValidation, passwordValidation } from './userValidations';
@@ -17,6 +17,7 @@ userRouter.delete("/admin/users/:id", adminMiddleware, user.deleteOne);
 
 // Authenticated User Routes (Self)
 userRouter.patch("/change-password", requireAuthUser, passwordValidation, catchAsync(updatePassword));
+userRouter.get("/me", requireAuthUser, catchAsync(getSelf));
 // userRouter.patch("/me", requireAuthUser, passwordValidation, catchAsync(updatePassword));
 
 // Authentication Routes

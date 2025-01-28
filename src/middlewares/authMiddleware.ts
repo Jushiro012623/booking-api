@@ -1,4 +1,3 @@
-import { log } from "console";
 import { NextFunction, Request, Response } from "express";
 import jwt_config from "../config/jwt.config"
 const jwt = require("jsonwebtoken");

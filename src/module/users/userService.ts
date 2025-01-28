@@ -1,18 +1,18 @@
 import moment from "moment";
-import getBaseUrl from "../../utils/getBaseUrl";
 import { Op } from "sequelize";
 
 const db = require('../../models')
-const nodemailer = require('nodemailer');
 
-const findUser = async (where : any, include = null) =>{ 
-    return await db.User.findOne({
+const findUser = async (where : any, include_roles_and_permissions : boolean = false) =>{ 
+    const query : any = {
         where: where,
-        include: {
+    }
+    if(include_roles_and_permissions){
+        query.include = {
             model: db.Roles,
-            include: db.Permission,
-        }
-    })  
+            include: db.Permission,}
+    }
+    return await db.User.findOne(query)  
 }
 const canUserLogin = (user : any, type : any) => {
     const roleMapping = {
@@ -34,25 +34,6 @@ const createUserRole = async (data : any) => {
 const saveResetPasswordToken = async (data : any) => {
     return await db.Password_Reset_Tokens.create(data);
 }
-const transporter = () => {
-    return nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false, // true for port 465, false for other ports
-        auth: {
-            user: "maddison53@ethereal.email",
-            pass: "jn7jnAPss4f63QBp6D",
-        },
-    });
-}
-
-const mailOptions = (email : string , token : string) => {
-    return {
-    from: 'ethan.madamando@deped.gov.ph',
-    to: email,
-    subject: 'Password Reset',
-    text: `Click the following link to reset your password: ${getBaseUrl}/reset-password/${token}`,
-}};
 
 const isResetTokenValid = async (token : string) => {
     return await db.Password_Reset_Tokens.findOne({where : {token, expiration: {
@@ -65,7 +46,5 @@ export default {
     createUser,
     createUserRole,
     saveResetPasswordToken,
-    transporter,
-    mailOptions,
     isResetTokenValid,
 }
