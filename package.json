@@ -6,6 +6,7 @@
     "build": "npx tsc",
     "start": "ts-node public/index.ts",
     "dev": "nodemon public/index.ts",
+    "db:check": "ts-node scripts/databaseConnectionChecker.ts",
     "db:init": "npx sequelize-cli db:create",
     "migrate:up": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo",

@@ -44,7 +44,6 @@ export default class BaseService {
             message: `${this.modelLabel} created sucessfully`,
         })
     });
-      
     public getOne = catchAsync(async (req : Request, res : Response, next : NextFunction)  => {
         const result = await this.model.findByPk(req.params.id);
         if (!result) {
