@@ -84,7 +84,7 @@ export const logout = async (req : Request, res : Response) => {
 export const forgotPassword = async (req : Request, res : Response, next : NextFunction) => {
     const { email } = req.body
 
-    const user : any = await userService.findUser({email})
+    const user = await userService.findUser({email})
     if (!user) return next(new AppError('User not found', HttpStatus.NOT_FOUND));
     const token = crypto.randomBytes(20).toString('hex');
     const expiration = moment().add(30, 'minutes').toISOString();

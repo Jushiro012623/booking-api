@@ -10,7 +10,7 @@ interface CustomRequest extends Request {
 }
 export default (allowedRoles: string[]) => {
     return catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
-        const userId = (req.user as { id: number }).id;
+        const userId = req.user?.id;
         const user = await db.User.findByPk(userId, {
             include: {
                 model: db.Roles,

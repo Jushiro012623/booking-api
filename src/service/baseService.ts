@@ -1,6 +1,7 @@
 import {NextFunction, Response, Request} from 'express'
 import statusCodes from '../constants/statusCodes'
 import catchAsync from '../utils/catchAsync'
+import { Model } from 'sequelize'
 export default class BaseService {
     private model
     private modelLabel
